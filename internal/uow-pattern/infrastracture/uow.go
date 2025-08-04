@@ -3,27 +3,23 @@ package infrastracture
 import (
 	"context"
 	"database/sql"
+
+	"github.com/tf63/go-tx-sample/internal/uow-pattern/domain"
 )
 
 // UnitOfWorkの実装
-type UnitOfWork interface {
-	DoInTx(
-		ctx context.Context,
-		fn func(ctx context.Context, uowRepoManager RepositoryManager) error,
-	) error
-}
 
 type unitOfWork struct {
 	db *sql.DB
 }
 
-func NewUnitOfWork(db *sql.DB) UnitOfWork {
+func NewUnitOfWork(db *sql.DB) domain.UnitOfWork {
 	return &unitOfWork{db: db}
 }
 
 func (u *unitOfWork) DoInTx(
 	ctx context.Context,
-	fn func(ctx context.Context, uowRepoManager RepositoryManager) error,
+	fn func(ctx context.Context, rpManager domain.RepositoryManager) error,
 ) error {
 	tx, err := u.db.BeginTx(ctx, nil)
 	if err != nil {
